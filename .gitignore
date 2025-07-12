@@ -1,0 +1,8 @@
+# Add environment files to ignore
+.venv/
+.idea/
+.pytest_cache/
+__pycache__/
+
+# Ignore log files
+*.log
