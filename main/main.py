@@ -90,8 +90,8 @@ def main():
         full_timeline = fetch_posts(api, "realDonaldTrump", latest_post)
         if len(full_timeline) > 0:
             latest_post = full_timeline[0]["id"]
-            # for post in reversed(full_timeline):
-            #     process_post(post)
+            for post in reversed(full_timeline):
+                process_post(post)
         else:
             print("Nothing new in last 30s")
         
