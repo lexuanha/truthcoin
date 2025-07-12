@@ -1,4 +1,5 @@
 import time
+import os
 from datetime import datetime, timezone
 from dateutil import parser as date_parse
 import smtplib
@@ -33,6 +34,10 @@ def translate_text(text):
 
 def send_email(html_content):
     """Gửi email"""
+    # Đọc danh sách email từ file
+    with open('list_receiver_mail.txt', 'r') as f:
+        receiver_emails = [email.strip() for email in f.readlines()]
+    
     msg = MIMEMultipart("alternative")
     msg["Subject"] = "Bài viết của TRUMP trên Truth"
     msg["From"] = "halepython@gmail.com"
@@ -74,16 +79,25 @@ def process_post(post):
         send_email(msg + list_url_media)
 
 def main():
+    os.chdir(os.path.dirname(__file__))
     api = Api()
     latest_post = "114837554019633896"
+    # Đọc ID bài viết mới nhất từ file
+    with open('latest_post.txt', 'r') as f:
+        latest_post = f.read()
+
     while True:
         full_timeline = fetch_posts(api, "realDonaldTrump", latest_post)
         if len(full_timeline) > 0:
             latest_post = full_timeline[0]["id"]
-            for post in reversed(full_timeline):
-                process_post(post)
+            # for post in reversed(full_timeline):
+            #     process_post(post)
         else:
             print("Nothing new in last 30s")
+        
+        with open('latest_post.txt', 'w') as f:
+                f.write(str(latest_post))
+        
         time.sleep(SLEEP_TIME)
 
 if __name__ == "__main__":
