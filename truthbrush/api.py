@@ -1,9 +1,10 @@
 from time import sleep
-from typing import Any, Iterator, List, Optional
+from typing import Any, Iterator, List, Optional, Union
 from loguru import logger
 from dateutil import parser as date_parse
 from datetime import datetime, timezone, date
 from curl_cffi import requests
+import curl_cffi
 import json
 import logging
 import os
@@ -13,7 +14,7 @@ load_dotenv()  # take environment variables from .env.
 
 logging.basicConfig(
     level=(
-        logging.DEBUG
+        logging.INFO
         if os.getenv("DEBUG") and os.getenv("DEBUG").lower() != "false"
         else logging.INFO
     )
@@ -32,11 +33,12 @@ CLIENT_SECRET = "ozF8jzI4968oTKFkEnsBC-UbLPCdrSv0MkXGQu2o_-M"
 
 proxies = {"http": os.getenv("http_proxy"), "https": os.getenv("https_proxy")}
 
-TRUTHSOCIAL_USERNAME = os.getenv("TRUTHSOCIAL_USERNAME")
-TRUTHSOCIAL_PASSWORD = os.getenv("TRUTHSOCIAL_PASSWORD")
-
-TRUTHSOCIAL_TOKEN = os.getenv("TRUTHSOCIAL_TOKEN")
-
+# TRUTHSOCIAL_USERNAME = os.getenv("TRUTHSOCIAL_USERNAME")
+# TRUTHSOCIAL_PASSWORD = os.getenv("TRUTHSOCIAL_PASSWORD")
+# TRUTHSOCIAL_TOKEN = os.getenv("TRUTHSOCIAL_TOKEN")
+TRUTHSOCIAL_USERNAME = "halepython"
+TRUTHSOCIAL_PASSWORD = "Abc@13579"
+TRUTHSOCIAL_TOKEN = "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"
 
 class LoginErrorException(Exception):
     pass
@@ -153,7 +155,7 @@ class Api:
 
     def user_likes(
         self, post: str, include_all: bool = False, top_num: int = 40
-    ) -> bool | Any:
+    ) -> Union[bool, Any]:
         """Return the top_num most recent (or all) users who liked the post."""
         self.__check_login()
         top_num = int(top_num)
@@ -372,7 +374,10 @@ class Api:
         """
 
         params = {}
-        user_id = self.lookup(username)["id"]
+        info = self.lookup(username)
+        if not info:
+            raise Exception("Lookup failed: blocked by Cloudflare / invalid response")
+        user_id = info["id"]
         page_counter = 0
         keep_going = True
         while keep_going:

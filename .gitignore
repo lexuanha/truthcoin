@@ -1,8 +1,21 @@
-# Add environment files to ignore
-# .venv/
-# .idea/
+.env
+.idea/
+.venv/
 .pytest_cache/
 __pycache__/
-
-# Ignore log files
 *.log
+post.txt
+Running.DEBUG
+log.txt
+check_and_run.sh
+reboot_e.sh
+start_main.sh
+groq_api.py
+truth_test_api.py
+Running.DEBUG
+post.txt
+log.txt
+*.sh
+.env
+.DS_Store
+*.pyd
