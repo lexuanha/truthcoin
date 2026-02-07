@@ -1,0 +1,6 @@
+truthbrush
+groq
+deep-translator
+python-dotenv
+requests
+python-dateutil
