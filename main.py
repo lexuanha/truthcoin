@@ -4,7 +4,8 @@ from dateutil import parser as date_parse
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from groq import Groq
+import os
+from groq_api import translate_text
 import re
 import html
 
@@ -33,7 +34,7 @@ console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)
 
 # File handler
-file_handler = logging.FileHandler("Running.DEBUG", mode='a')
+file_handler = logging.FileHandler("Running.DEBUG", mode='a', encoding='utf-8')
 file_handler.setLevel(logging.DEBUG)
 
 # Format log
@@ -49,15 +50,13 @@ logger.addHandler(file_handler)
 NUMBER_OF_POSTS_TO_FETCH = 1
 SLEEP_TIME = 30  # giây
 
-BOT_TOKEN = "7526093750:AAH1xJTjjEGNERam-cEm8jsFsA7V6JTsVa0" 
-CHAT_ID = "-4868128644"
+BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
 url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
 
-receiver_emails = ["hale0972718598@gmail.com", "huyhajhuoc2@gmail.com","truongphamnhu@gmail.com"]
-client = Groq(
-    api_key="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"
-)
+receiver_emails = os.getenv('RECEIVER_EMAILS', '').split(',') if os.getenv('RECEIVER_EMAILS') else []
+
 
 def translate_libre(text, source="en", target="vi", api_url="https://libretranslate.de/translate"):
     try:
@@ -75,18 +74,7 @@ def translate_libre(text, source="en", target="vi", api_url="https://libretransl
     except Exception as e:
         return f"[Lỗi: {e}]"
 
-def translate_text(text):
-    """Dịch văn bản sang tiếng Việt"""
-    chat_completion = client.chat.completions.create(
-        messages=[
-            {
-                "role": "user",
-                "content": "Translate the following text to Vietnamese: " + text,
-            }
-        ],
-        model="llama-3.3-70b-versatile",
-    )
-    return chat_completion.choices[0].message.content
+
 def send_email(html_content):
     """Gửi email"""
     msg = MIMEMultipart("alternative")
@@ -98,7 +86,7 @@ def send_email(html_content):
 
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
-    server.login("halepython@gmail.com", "fict xpaw mrwr rrhj")
+    server.login(os.getenv('SMTP_EMAIL'), os.getenv('SMTP_PASSWORD'))
     server.send_message(msg)
     server.quit()
 
@@ -238,7 +226,7 @@ def process_post(post):
         #     "Bạn hãy đánh giá ngắn gọn ảnh hưởng của bài viết này lên thị trường tiền điện tử." +
         #     "Tách phần dịch và phần đánh giá"
         # )
-        translated_msg = translate_google(msg_plain)
+        translated_msg = translate_text(msg_plain)
 
         telegram_msg = f"{msg_html}\n{list_url_media_telegram}\n<i>{translated_msg}</i>"
         email_msg = (
