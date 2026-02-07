@@ -10,12 +10,10 @@ log.txt
 check_and_run.sh
 reboot_e.sh
 start_main.sh
-groq_api.py
-truth_test_api.py
 Running.DEBUG
 post.txt
 log.txt
-*.sh
+
 .env
 .DS_Store
 *.pyd
